@@ -1,8 +1,12 @@
-from flask import Flask, render_template
+import os
 
-from database.db import get_db, init_db, seed_db
+from flask import Flask, redirect, render_template, request, session, url_for
+from werkzeug.security import generate_password_hash
+
+from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 with app.app_context():
     init_db()
@@ -18,9 +22,39 @@ def landing():
     return render_template("landing.html")
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    if request.method == "GET":
+        return render_template("register.html")
+
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    if not name or not email or "@" not in email:
+        return render_template(
+            "register.html", error="Please enter a valid name and email."
+        ), 400
+
+    if len(password) < 8:
+        return render_template(
+            "register.html", error="Password must be at least 8 characters."
+        ), 400
+
+    if password != confirm_password:
+        return render_template(
+            "register.html", error="Passwords do not match."
+        ), 400
+
+    if get_user_by_email(email) is not None:
+        return render_template(
+            "register.html",
+            error="An account with this email already exists.",
+        ), 400
+
+    create_user(name, email, generate_password_hash(password))
+    return redirect(url_for("login"))
 
 
 @app.route("/login")
@@ -44,7 +78,8 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("login"))
 
 
 @app.route("/profile")
