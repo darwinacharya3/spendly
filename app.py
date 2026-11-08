@@ -1,11 +1,18 @@
 import os
+from datetime import date, datetime
 
 from flask import Flask, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import (
+    CATEGORIES,
+    create_expense,
     create_user,
+    get_category_breakdown,
     get_db,
+    get_expense_summary,
+    get_expenses_by_user,
+    get_top_category,
     get_user_by_email,
     get_user_by_id,
     init_db,
@@ -32,13 +39,15 @@ def inject_current_user():
 
 @app.route("/")
 def landing():
+    if session.get("user_id"):
+        return redirect(url_for("profile"))
     return render_template("landing.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if session.get("user_id"):
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     if request.method == "GET":
         return render_template("register.html")
@@ -76,7 +85,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("user_id"):
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     if request.method == "GET":
         return render_template("login.html")
@@ -91,7 +100,7 @@ def login():
         ), 401
 
     session["user_id"] = user["id"]
-    return redirect(url_for("landing"))
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -116,12 +125,73 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    user = get_user_by_id(user_id)
+    summary = get_expense_summary(user_id)
+    top_category = get_top_category(user_id)
+    breakdown_rows = get_category_breakdown(user_id)
+    member_since = datetime.strptime(
+        user["created_at"], "%Y-%m-%d %H:%M:%S"
+    ).strftime("%d %b %Y")
+
+    recent_expenses = [
+        {
+            "date": datetime.strptime(e["date"], "%Y-%m-%d").strftime("%d %b %Y"),
+            "description": e["description"] or "—",
+            "category": e["category"],
+            "amount_display": "₹{:,.2f}".format(e["amount"]),
+        }
+        for e in get_expenses_by_user(user_id)[:5]
+    ]
+
+    max_category_total = breakdown_rows[0]["total"] if breakdown_rows else 0
+    category_breakdown = [
+        {
+            "category": row["category"],
+            "total_display": "₹{:,.2f}".format(row["total"]),
+            "pct": (row["total"] / max_category_total * 100) if max_category_total else 0,
+        }
+        for row in breakdown_rows
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user,
+        expense_count=summary["count"],
+        expense_total_display="₹{:,.2f}".format(summary["total"]),
+        member_since=member_since,
+        expenses=recent_expenses,
+        top_category=top_category,
+        category_breakdown=category_breakdown,
+        categories=CATEGORIES,
+        today=date.today().isoformat(),
+    )
 
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    amount = request.form.get("amount", "")
+    category = request.form.get("category", "")
+    expense_date = request.form.get("date", "")
+    description = request.form.get("description", "").strip()
+
+    try:
+        amount = float(amount)
+    except ValueError:
+        amount = None
+
+    if amount is None or amount <= 0 or category not in CATEGORIES or not expense_date:
+        return redirect(url_for("profile"))
+
+    create_expense(user_id, amount, category, expense_date, description)
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")

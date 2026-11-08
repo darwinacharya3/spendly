@@ -32,6 +32,21 @@
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 20px;
+
+    --cat-food: var(--accent);
+    --cat-food-bg: var(--accent-light);
+    --cat-transport: var(--accent-2);
+    --cat-transport-bg: var(--accent-2-light);
+    --cat-bills: var(--ink-muted);
+    --cat-bills-bg: var(--border-soft);
+    --cat-health: #3f6fb8;
+    --cat-health-bg: #e9f0fa;
+    --cat-entertainment: #7d6bb0;
+    --cat-entertainment-bg: #efe9f7;
+    --cat-shopping: #b5562c;
+    --cat-shopping-bg: #f7e6de;
+    --cat-other: var(--ink-faint);
+    --cat-other-bg: var(--paper-warm);
 }
 
 /* ------------------------------------------------------------------ */
@@ -546,6 +561,259 @@ a { color: inherit; text-decoration: none; }
 }
 
 .auth-switch a:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------------ */
+/* Profile page                                                        */
+/* ------------------------------------------------------------------ */
+
+.profile-section {
+    min-height: calc(100vh - 60px - 100px);
+    padding: 3rem 2rem 5rem;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.profile-card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+}
+
+/* Identity card */
+
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper-card);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+}
+
+.profile-email {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    margin-bottom: 0.3rem;
+}
+
+.profile-meta {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+}
+
+/* Stat tiles */
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.profile-stat {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.profile-stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.profile-stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--ink);
+}
+
+/* Add-expense form */
+
+.profile-expense-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.5rem;
+}
+
+.profile-expense-form .form-group:last-of-type {
+    grid-column: 1 / -1;
+}
+
+.profile-expense-form .btn-submit {
+    grid-column: 1 / -1;
+    width: auto;
+    padding: 0.7rem 1.75rem;
+    margin-top: 0;
+    justify-self: start;
+}
+
+/* Two-column grid: transactions + category breakdown */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* Recent transactions table */
+
+.profile-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-table-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 110px 100px;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.profile-table-row:last-child { border-bottom: none; }
+
+.profile-table-head {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 0;
+}
+
+.profile-table-date {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+}
+
+.profile-table-description {
+    font-size: 0.9rem;
+    color: var(--ink);
+}
+
+.profile-table-amount {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+}
+
+.profile-pill {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.profile-pill-food { background: var(--cat-food-bg); color: var(--cat-food); }
+.profile-pill-transport { background: var(--cat-transport-bg); color: var(--cat-transport); }
+.profile-pill-bills { background: var(--cat-bills-bg); color: var(--cat-bills); }
+.profile-pill-health { background: var(--cat-health-bg); color: var(--cat-health); }
+.profile-pill-entertainment { background: var(--cat-entertainment-bg); color: var(--cat-entertainment); }
+.profile-pill-shopping { background: var(--cat-shopping-bg); color: var(--cat-shopping); }
+.profile-pill-other { background: var(--cat-other-bg); color: var(--cat-other); }
+
+/* By-category breakdown */
+
+.profile-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.profile-category-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+}
+
+.profile-category-name {
+    font-size: 0.9rem;
+    color: var(--ink);
+}
+
+.profile-category-total {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+}
+
+.profile-category-track {
+    height: 6px;
+    background: var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.profile-category-bar {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 999px;
+}
+
+.profile-expense-empty {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+}
+
+@media (max-width: 900px) {
+    .profile-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .profile-stats { grid-template-columns: 1fr; }
+    .profile-expense-form { grid-template-columns: 1fr; }
+    .profile-table-row { grid-template-columns: 1fr 1fr; row-gap: 0.3rem; }
+    .profile-table-amount { text-align: left; }
+}
 
 /* ------------------------------------------------------------------ */
 /* Legal pages                                                         */

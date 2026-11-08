@@ -72,6 +72,62 @@ def get_user_by_id(user_id):
     return user
 
 
+def get_expense_summary(user_id):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total "
+        "FROM expenses WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    conn.close()
+    return {"count": row["count"], "total": row["total"]}
+
+
+def get_expenses_by_user(user_id):
+    conn = get_db()
+    expenses = conn.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC, id DESC",
+        (user_id,),
+    ).fetchall()
+    conn.close()
+    return expenses
+
+
+def get_top_category(user_id):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT category, SUM(amount) AS total FROM expenses "
+        "WHERE user_id = ? GROUP BY category ORDER BY total DESC LIMIT 1",
+        (user_id,),
+    ).fetchone()
+    conn.close()
+    if row is None:
+        return None
+    return {"category": row["category"], "total": row["total"]}
+
+
+def get_category_breakdown(user_id):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT category, SUM(amount) AS total FROM expenses "
+        "WHERE user_id = ? GROUP BY category ORDER BY total DESC",
+        (user_id,),
+    ).fetchall()
+    conn.close()
+    return rows
+
+
+def create_expense(user_id, amount, category, expense_date, description):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO expenses (user_id, amount, category, date, description) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (user_id, amount, category, expense_date, description),
+    )
+    conn.commit()
+    conn.close()
+
+
 def create_user(name, email, password_hash):
     conn = get_db()
     cursor = conn.execute(
