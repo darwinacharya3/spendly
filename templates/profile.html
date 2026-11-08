@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block content %}
+
+<section class="profile-section">
+    <div class="profile-container">
+
+        <div class="profile-card profile-identity-card">
+            <div class="profile-identity">
+                <div class="profile-avatar">{{ user['name'][0] | upper }}</div>
+                <div>
+                    <h1 class="profile-name">{{ user['name'] }}</h1>
+                    <p class="profile-email">{{ user['email'] }}</p>
+                    <p class="profile-meta">Member since {{ member_since }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="profile-stat-label">Total spent</span>
+                <span class="profile-stat-value">{{ expense_total_display }}</span>
+            </div>
+            <div class="profile-stat">
+                <span class="profile-stat-label">Transactions</span>
+                <span class="profile-stat-value">{{ expense_count }}</span>
+            </div>
+            <div class="profile-stat">
+                <span class="profile-stat-label">Top category</span>
+                <span class="profile-stat-value">{{ top_category['category'] if top_category else "—" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-card profile-add-card">
+            <h2 class="profile-card-title">Add an expense</h2>
+            <form method="POST" action="{{ url_for('add_expense') }}" class="profile-expense-form">
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" class="form-input"
+                           min="0.01" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" class="form-input" required>
+                        {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" class="form-input"
+                           value="{{ today }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" class="form-input"
+                           placeholder="What was it for?">
+                </div>
+                <button type="submit" class="btn-submit">Add expense</button>
+            </form>
+        </div>
+
+        <div class="profile-grid">
+
+            <div class="profile-card profile-transactions">
+                <h2 class="profile-card-title">Recent transactions</h2>
+
+                {% if expenses %}
+                <div class="profile-table">
+                    <div class="profile-table-row profile-table-head">
+                        <span>Date</span>
+                        <span>Description</span>
+                        <span>Category</span>
+                        <span class="profile-table-amount">Amount</span>
+                    </div>
+                    {% for expense in expenses %}
+                    <div class="profile-table-row">
+                        <span class="profile-table-date">{{ expense['date'] }}</span>
+                        <span class="profile-table-description">{{ expense['description'] }}</span>
+                        <span>
+                            <span class="profile-pill profile-pill-{{ expense['category'] | lower }}">{{ expense['category'] }}</span>
+                        </span>
+                        <span class="profile-table-amount">{{ expense['amount_display'] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="profile-expense-empty">You haven't logged any expenses yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="profile-card profile-categories">
+                <h2 class="profile-card-title">By category</h2>
+
+                {% if category_breakdown %}
+                <div class="profile-category-list">
+                    {% for row in category_breakdown %}
+                    <div class="profile-category-row">
+                        <div class="profile-category-line">
+                            <span class="profile-category-name">{{ row['category'] }}</span>
+                            <span class="profile-category-total">{{ row['total_display'] }}</span>
+                        </div>
+                        <div class="profile-category-track">
+                            <div class="profile-category-bar" style="width: {{ row['pct'] }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="profile-expense-empty">No categories yet.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
